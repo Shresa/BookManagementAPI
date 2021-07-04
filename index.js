@@ -76,7 +76,7 @@ Bookly.get("/author", (req,res) => {
 
 /* 
 Route               /author
-Description         get all authors
+Description         get a list of authors based on a book's ISBN
 Access              PUBLIC
 Parameters          isbn
 Method              GET
@@ -102,9 +102,81 @@ Access              PUBLIC
 Parameters          NONE
 Method              GET
 */
-
 Bookly.get("/publications", (req, res) => {
     return res.json({ publications: database.publications});
 });
+
+/* 
+Route               /book/new
+Description         add new books
+Access              PUBLIC
+Parameters          NONE
+Method              POST
+*/
+Bookly.post("/book/new", (req, res) => {
+    const {newBook} = req.body;
+    database.books.push(newBook);
+
+    return res.json({ books: database.books, message: "book was added"});
+});
+
+/* 
+Route               /author/new
+Description         add new author
+Access              PUBLIC
+Parameters          NONE
+Method              POST
+*/
+Bookly.post("/author/new", (req, res) => {
+    const {newAuthor} = req.body;
+    database.authors.push(newAuthor);
+
+    return res.json({ authors: database.authors, message: "author  was added"});
+});
+
+/* 
+Route               /book/update
+Description         update title of a book
+Access              PUBLIC
+Parameters          isbn
+Method              PUT
+*/
+Bookly.put("/book/update/:isbn", (req, res) => {
+   database.books.forEach((book) => {
+       if(book.ISBN === req.params.isbn) {
+       book.title = req.body.bookTitle;
+       return;
+     }
+   });
+    return res.json({ books: database.books });
+});
+
+/* 
+Route               /book/author/update
+Description         update/add new author
+Access              PUBLIC
+Parameters          isbn
+Method              PUT
+*/
+Bookly.put("/book/author/update/:isbn", (req, res) => {
+    // update the book database
+    database.books.forEach((book) => {
+        if(book.ISBN === req.params.isbn)
+            return book.authors.push(req.body.newAuthor);
+    });
+
+    // update the author database
+    database.authors.forEach((author) => {
+        if(author.id === req.body.newAuthor)
+            return author.books.push(req.params.isbn);
+    });
+
+     return res.json({ 
+         books: database.books,
+         authors: database.authors,
+         message: "New author was added",
+    });
+});
+
 
 Bookly.listen(3000, () => console.log("Server Running!!"));
