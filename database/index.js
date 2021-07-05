@@ -38,6 +38,11 @@ const publications = [
         name: "Chokro",
         books: ["12345ONE"],
     },
+    {
+        id: 2,
+        name: "Sahitya Publications",
+        books: [],
+    },
 ];
 
 module.exports = {books,authors,publications};
