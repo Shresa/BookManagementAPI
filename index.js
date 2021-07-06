@@ -188,22 +188,49 @@ Access              PUBLIC
 Parameters          isbn
 Method              PUT
 */
-Bookly.put("/book/author/update/:isbn", (req, res) => {
+Bookly.put("/book/author/update/:isbn", async (req, res) => {
     // update the book database
-    database.books.forEach((book) => {
-        if(book.ISBN === req.params.isbn)
-            return book.authors.push(req.body.newAuthor);
-    });
 
-    // update the author database
-    database.authors.forEach((author) => {
-        if(author.id === req.body.newAuthor)
-            return author.books.push(req.params.isbn);
-    });
+    const updatedBook = await BookModel.findOneAndUpdate({
+        ISBN: req.params.isbn,
+    },
+    {
+        $addToSet: {
+            authors: req.body.newAuthor,
+        },
+    },
+    {
+        new: true,
+    }
+    );
+    // database.books.forEach((book) => {
+    //     if(book.ISBN === req.params.isbn)
+    //         return book.authors.push(req.body.newAuthor);
+    // });
+
+    // // update the author database
+
+    const updatedAuthor = await AuthorModel.findOneAndUpdate(
+        {
+            id: req.body.newAuthor,
+        },
+        {
+            $addToSet:{
+                books: req.params.isbn,
+            },
+        },
+        {
+            new: true,
+        }
+    );
+    // database.authors.forEach((author) => {
+    //     if(author.id === req.body.newAuthor)
+    //         return author.books.push(req.params.isbn);
+    // });
 
      return res.json({ 
-         books: database.books,
-         authors: database.authors,
+         books: updatedBook,
+         authors: updatedAuthor,
          message: "New author was added",
     });
 });
@@ -238,7 +265,8 @@ Bookly.put("/publication/update/book/:isbn", (req, res) => {
     });
 });
 
-/*Route               /book/delete/
+/*
+Route               /book/delete/
 Description         delete a book
 Access              PUBLIC
 Parameters          isbn
