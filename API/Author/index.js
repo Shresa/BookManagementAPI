@@ -23,6 +23,8 @@ Parameters          isbn
 Method              GET
 */
 Router.get("/:isbn", (req,res) => {
+    try{
+        
     const getSpecificAuthors = database.authors.filter((author) => 
     author.books.includes(req.params.isbn)
     );
@@ -34,6 +36,9 @@ Router.get("/:isbn", (req,res) => {
     }
 
     return res.json({authors: getSpecificAuthors });
+    } catch(error) {
+        return res.json({ error: error.message});
+      }
 });
 
 /* 
